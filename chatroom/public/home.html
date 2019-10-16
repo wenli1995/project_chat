@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Socket.IO聊天室</title>
+    <link href="http://localhost:3000/public/style.css" rel="stylesheet" type="text/css">
+    <!-- Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+            <div class="row">
+                <div class="col-md-3">
+                    <div  class="title"><p>联系人</p></div>
+                    <div id="usersPanel">
+                        <ul id="users" class="list-group"></ul>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div  class="title" id="chatTitle"><p>聊天室</p></div>
+                    <div id="messagesPanel">
+                        <ul id="messages"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3"></div>
+                <div class="col-md-9">
+                    <form action="" class="form-horizontal">
+                        <div class="form-group">
+                            <div class="col-md-10">
+                                <input type="text" class="form-control" id="m" placeholder="Type here...">
+                            </div>
+                            <button class="btn btn-default  col-md-2">Send</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+</div>
+<script>
+    $(function () {
+        var socket = io();
+        var username=sessionStorage.getItem("username");
+        var userList=[] //保存在线用户数组
+        var isPrivate=false //是否私密消息；
+        var privateRecipient='';
+        //登录以后向服务端发送登录事件
+        if(username){
+            socket.emit("userLogin",username);
+        }
+        //发送聊天事件
+        $('form').submit(function(){
+            if(!isPrivate){
+                socket.emit('chat message', $('#m').val());
+                $('#messages').append($('<li class="send">').text( username+":"+$('#m').val())); //用户发出消息后,即刻在消息列表中显示
+            }else{
+                socket.emit('private message',{
+                    recipient:privateRecipient,
+                    message: $('#m').val()
+                });
+                isPrivate=false;
+                $('#messages').append($('<li class="send">').text( username+"[私密消息]:"+$('#m').val())); //用户发出消息后,即刻在消息列表中显示
+            }
+            $('#m').val('');
+            return false;
+        });
+        //监听聊天事件
+        socket.on('chat message', function(msg){
+            $('#messages').append($('<li class="receive">').text(msg.message+":"+msg.username));
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+        //监听一对一聊天事件
+        socket.on('private message', function(msg){
+            console.log("private msg:"+JSON.stringify(msg));
+            $('#messages').append($('<li  class="receive">').text(msg.message+"[私密消息]:"+msg.username));
+        });
+        //监听login事件,在消息列表中显示"xx用户登录"
+        socket.on("login",function(msg){
+            console.log(msg);
+            $('#chatTitle').text(username+"的聊天室");  //聊天面板标题
+            $('#messages').append($('<li>').text(msg.username+" "+msg.message));
+            userList=msg.userList;
+            $('#users').empty(); //删除列表之前渲染的li元素，避免元素重复
+            for(let i=0;i<userList.length;i++){
+                var $li=$('<li>')
+                var $button=$('<button class="contact">').text(userList[i]);
+                $button.dblclick(function(event){
+                    isPrivate=true;
+                    privateRecipient=event.target.textContent;
+                    console.log("privateRecipient:"+privateRecipient);
+                    $('#messages').append($('<li>').text("下一条为私密消息"))
+                })
+                $li.append($button);
+                $('#users').append($li);
+            }
+        });
+        //监听logout事件
+        socket.on("logout",function(msg){
+            $('#messages').append($('<li>').text(msg.username+" "+msg.message));
+            userList=msg.userList;
+            $('#users').empty(); //删除列表之前渲染的li元素，避免元素重复
+            for(let i=0;i<userList.length;i++){
+                var $li=$('<li>')
+                var $button=$('<button class="contact">').text(userList[i]);
+                $li.append($button);
+                $('#users').append($li);
+
+            }
+        })
+    });
+</script>
+</body>
+</html>

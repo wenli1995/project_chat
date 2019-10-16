@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket聊天应用</title>
+</head>
+<body>
+<html>
+<ul id="messages"></ul>
+<form action="" onsubmit="handleSubmit(event)">
+    message:<input id="m"/>
+    <button type="submit">Send</button>
+</form>
+</html>
+</html>
+<script>
+    //参考HTML5 WebSocket接口,是不用引入模块的。https://developer.mozilla.org/zh-CN/docs/Web/API/WebSocket/WebSocket
+    const ws=new WebSocket("ws://localhost:9000/test")   //协议是ws
+    ws.onopen=function(){
+        console.log("连接websocket服务器成功");
+        //ws.send("Hello"); //Send data through the connection.
+    };
+    function handleSubmit (event){
+        event.preventDefault();
+        let  data=document.getElementById("m").value;
+        ws.send(data);
+    }
+    ws.onmessage=function(message){
+        //An event listener to be called when a message is received from the server. The listener receives a MessageEvent named "message".
+        let messageList=document.getElementById("messages");
+        let li=document.createElement("li");
+        li.textContent=message.data;
+        messageList.append(li);
+    };
+
+</script>
+</body>
+</html>

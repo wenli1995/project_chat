@@ -1,0 +1,62 @@
+body{
+    font-size: 10px;
+}
+ul{
+    list-style-type:none;
+    margin:0px;
+    padding:0px
+}
+ul li{
+    padding:5px;
+}
+ul li a{
+    text-decoration: none;
+    color:black;
+}
+.container{
+    height:500px
+}
+.title{
+    background-color:#59407F;
+    color:white;
+    font-weight: bold;
+    border-top-left-radius:4px;
+    border-top-right-radius:4px;
+}
+.title p{
+    margin:0px;
+    padding:5px
+}
+#usersPanel,#messagesPanel{
+    background-color: #fff;
+    border: 1px solid #59407F;
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius:4px;
+    height: 500px;
+    overflow-y:scroll;
+    margin-bottom: 10px;
+}
+#usersPanel .contact{
+    width:100%;
+    border:none;
+    padding:10px;
+    background-color:#F7F7F9
+}
+#usersPanel li{
+    padding:0px;
+}
+#messagesPanel li{
+    text-align: center;
+    color:gray;
+
+}
+#messagesPanel .send{
+     text-align: left;
+     color:black;
+     font-size: 1.5em;
+ }
+#messagesPanel  .receive{
+    text-align: right;
+    color:black;
+    font-size: 1.5em;
+}

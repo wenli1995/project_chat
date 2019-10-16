@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SocketIo聊天应用</title>
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <!--引入本地socket.io.js脚本，也可以通过https://cdn.socket.io/socket.io-1.2.0.js方式引入-->
+</head>
+<body>
+<html>
+<ul id="messages"></ul>
+message:<input id="m"/>
+<button type="submit" onclick="handleSubmit">Send</button>
+</form>
+</html>
+<script>
+    window.onload = function(){
+        //参考HTML5 WebSocket接口,是不用引入模块的。https://developer.mozilla.org/zh-CN/docs/Web/API/WebSocket/WebSocket
+        var socket=io("http://localhost:3001");
+        //var socket=io();
+        //和websocket不同，io()不需指定服务器地址和端口，since it defaults to trying to connect to the host that serves the page.
+        //也就是后台使用express,koa等框架时，浏览器输入http://localhost:9001访问，socket就会连接到这个url,现在不使用框架，浏览器直接打开client.js文健，则需要指定url
+        function handleSubmit (event){
+            let  data=document.getElementById("m").value;
+            socket.emit("ask",data);  //emit的事件名是可以自定义的
+        }
+
+        socket.on("ask",function(message){
+            let messageList=document.getElementById("messages");
+            let li=document.createElement("li");
+            li.textContent=message;
+            messageList.append(li);
+        })
+    }
+</script>
+</body>
+</html>
